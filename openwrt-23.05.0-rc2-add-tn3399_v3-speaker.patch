@@ -1,0 +1,209 @@
+diff --git a/package/kernel/linux/modules/sound.mk b/package/kernel/linux/modules/sound.mk
+index 2bfa146..dd8aea1 100644
+--- a/package/kernel/linux/modules/sound.mk
++++ b/package/kernel/linux/modules/sound.mk
+@@ -254,6 +254,70 @@ endef
+ $(eval $(call KernelPackage,sound-soc-imx-sgtl5000))
+ 
+ 
++define KernelPackage/sound-soc-rockchip
++  TITLE:=Rockchip SoC support
++  KCONFIG:= \
++	CONFIG_SND_SOC_ROCKCHIP \
++	CONFIG_SND_SOC_ROCKCHIP_I2S \
++	CONFIG_SND_SOC_ROCKCHIP_PDM \
++	CONFIG_SND_SOC_ROCKCHIP_SPDIF
++  FILES:= \
++	$(LINUX_DIR)/sound/soc/rockchip/snd-soc-rockchip-i2s.ko \
++	$(LINUX_DIR)/sound/soc/rockchip/snd-soc-rockchip-pcm.ko \
++	$(LINUX_DIR)/sound/soc/rockchip/snd-soc-rockchip-pdm.ko \
++	$(LINUX_DIR)/sound/soc/rockchip/snd-soc-rockchip-spdif.ko
++  AUTOLOAD:=$(call AutoLoad,56,snd-soc-rockchip-i2s snd-soc-rockchip-pcm snd-soc-rockchip-pdm snd-soc-rockchip-spdif)
++  DEPENDS:=@TARGET_rockchip +kmod-sound-soc-core
++  $(call AddDepends/sound)
++endef
++
++$(eval $(call KernelPackage,sound-soc-rockchip))
++
++
++define KernelPackage/sound-soc-simple-card
++  TITLE:=ASoC Simple sound card support
++  KCONFIG:= \
++	CONFIG_SND_SIMPLE_CARD
++  FILES:= \
++	$(LINUX_DIR)/sound/soc/generic/snd-soc-simple-card.ko \
++	$(LINUX_DIR)/sound/soc/generic/snd-soc-simple-card-utils.ko
++  AUTOLOAD:=$(call AutoLoad,56,snd-soc-simple-card snd-soc-simple-card-utils)
++  DEPENDS:=+kmod-sound-soc-core
++  $(call AddDepends/sound)
++endef
++
++$(eval $(call KernelPackage,sound-soc-simple-card))
++
++
++define KernelPackage/sound-soc-simple-amplifier
++  TITLE:=Simple Audio Amplifier
++  KCONFIG:= \
++	CONFIG_SND_SOC_SIMPLE_AMPLIFIER
++  FILES:= \
++	$(LINUX_DIR)/sound/soc/codecs/snd-soc-simple-amplifier.ko
++  AUTOLOAD:=$(call AutoLoad,56,snd-soc-simple-amplifier)
++  DEPENDS:=+kmod-sound-soc-core
++  $(call AddDepends/sound)
++endef
++
++$(eval $(call KernelPackage,sound-soc-simple-amplifier))
++
++
++define KernelPackage/sound-soc-rt5640
++  TITLE:=Realtek RT5640/RT5639 Codec
++  KCONFIG:= \
++	CONFIG_SND_SOC_RT5640
++  FILES:= \
++	$(LINUX_DIR)/sound/soc/codecs/snd-soc-rt5640.ko \
++	$(LINUX_DIR)/sound/soc/codecs/snd-soc-rl6231.ko
++  AUTOLOAD:=$(call AutoLoad,57,snd-soc-rt5640 snd-soc-rl6231)
++  DEPENDS:=+kmod-sound-soc-core
++  $(call AddDepends/sound)
++endef
++
++$(eval $(call KernelPackage,sound-soc-rt5640))
++
++
+ define KernelPackage/sound-soc-spdif
+   TITLE:=SoC S/PDIF codec support
+   KCONFIG:=CONFIG_SND_SOC_SPDIF
+diff --git a/target/linux/rockchip/armv8/base-files/usr/share/alsa/ucm2/conf.d/simple-card/rockchip,rt5640-codec-HiFi.conf b/target/linux/rockchip/armv8/base-files/usr/share/alsa/ucm2/conf.d/simple-card/rockchip,rt5640-codec-HiFi.conf
+new file mode 100644
+index 0000000..45dffb5
+--- /dev/null
++++ b/target/linux/rockchip/armv8/base-files/usr/share/alsa/ucm2/conf.d/simple-card/rockchip,rt5640-codec-HiFi.conf
+@@ -0,0 +1,90 @@
++SectionVerb {
++	Value {
++		TQ HiFi
++		PlaybackChannels 2
++		CaptureChannels 2
++	}
++
++	EnableSequence [
++		# for speaker and headphones
++		cset "name='Stereo DAC MIXL DAC L1 Switch' on"
++		cset "name='Stereo DAC MIXR DAC R1 Switch' on"
++	]
++}
++
++SectionDevice."Speaker" {
++	Comment "Internal Speakers"
++
++	ConflictingDevice [
++		"Headphones"
++	]
++
++	Value {
++		PlaybackPriority 200
++		PlaybackPCM "hw:${CardId},0"
++	}
++
++	EnableSequence [
++		cset "name='SPOL MIX DAC L1 Switch' on"
++		cset "name='SPOR MIX DAC R1 Switch' on"
++		cset "name='Speaker L Playback Switch' on"
++		cset "name='Speaker R Playback Switch' on"
++	]
++
++	DisableSequence [
++		cset "name='Speaker L Playback Switch' off"
++		cset "name='Speaker R Playback Switch' off"
++		cset "name='SPOL MIX DAC L1 Switch' off"
++		cset "name='SPOR MIX DAC R1 Switch' off"
++	]
++}
++
++SectionDevice."Headphones" {
++	Comment "Headphones"
++
++	ConflictingDevice [
++		"Speaker"
++	]
++
++	Value {
++		PlaybackPriority 100
++		PlaybackPCM "hw:${CardId},0"
++		JackControl "Headphone Jack"
++		JackHWMute "Speaker"
++	}
++
++	EnableSequence [
++		cset "name='HPO MIX DAC1 Switch' on"
++		cset "name='HP L Playback Switch' on"
++		cset "name='HP R Playback Switch' on"
++	]
++
++	DisableSequence [
++		cset "name='HP L Playback Switch' off"
++		cset "name='HP R Playback Switch' off"
++		cset "name='HPO MIX DAC1 Switch' off"
++	]
++}
++
++SectionDevice."Mic" {
++	Comment "Internal Microphone"
++
++	Value {
++		CapturePriority 100
++		CapturePCM "hw:${CardId},0"
++	}
++
++	EnableSequence [
++		cset "name='RECMIXL BST1 Switch' on"
++		cset "name='RECMIXR BST1 Switch' on"
++		cset "name='Stereo ADC MIXL ADC1 Switch' on"
++		cset "name='Stereo ADC MIXR ADC1 Switch' on"
++	]
++
++	DisableSequence [
++		cset "name='Stereo ADC MIXL ADC1 Switch' off"
++		cset "name='Stereo ADC MIXR ADC1 Switch' off"
++		cset "name='RECMIXL BST1 Switch' off"
++		cset "name='RECMIXR BST1 Switch' off"
++	]
++}
+diff --git a/target/linux/rockchip/armv8/base-files/usr/share/alsa/ucm2/conf.d/simple-card/rockchip,rt5640-codec.conf b/target/linux/rockchip/armv8/base-files/usr/share/alsa/ucm2/conf.d/simple-card/rockchip,rt5640-codec.conf
+new file mode 100644
+index 0000000..1a3e0b9
+--- /dev/null
++++ b/target/linux/rockchip/armv8/base-files/usr/share/alsa/ucm2/conf.d/simple-card/rockchip,rt5640-codec.conf
+@@ -0,0 +1,18 @@
++Syntax 4
++
++Comment "Rockchip ALC5640 card"
++
++SectionUseCase."HiFi" {
++	File "rockchip,rt5640-codec-HiFi.conf"
++	Comment "Default"
++}
++
++BootSequence [
++	# speaker default
++	cset "name='Stereo DAC MIXL DAC L1 Switch' on"
++	cset "name='Stereo DAC MIXR DAC R1 Switch' on"
++	cset "name='SPOL MIX DAC L1 Switch' on"
++	cset "name='SPOR MIX DAC R1 Switch' on"
++	cset "name='Speaker L Playback Switch' on"
++	cset "name='Speaker R Playback Switch' on"
++]
+diff --git a/target/linux/rockchip/image/armv8.mk b/target/linux/rockchip/image/armv8.mk
+index 51c789f..96b25f9 100644
+--- a/target/linux/rockchip/image/armv8.mk
++++ b/target/linux/rockchip/image/armv8.mk
+@@ -56,7 +56,8 @@ define Device/tiannuo_tn3399-v3
+   DEVICE_MODEL := TN3399_V3
+   SOC := rk3399
+   IMAGE/sysupgrade.img.gz := boot-common | boot-script | pine64-img | gzip | append-metadata
+-  DEVICE_PACKAGES := kmod-brcmfmac brcmfmac-firmware-tn3399-v3
++  DEVICE_PACKAGES := kmod-brcmfmac brcmfmac-firmware-tn3399-v3 \
++  kmod-sound-core kmod-sound-soc-simple-card kmod-sound-soc-simple-amplifier kmod-sound-soc-rockchip kmod-sound-soc-rt5640
+ endef
+ TARGET_DEVICES += tiannuo_tn3399-v3
+ 

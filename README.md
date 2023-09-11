@@ -1,14 +1,10 @@
-# 仓库功能
-
-提供补丁，为TN3399V3添加OpenWRT支持
-
-# 构建OpenWRT镜像
+# 为TN3399_V3构建OpenWRT镜像
 
 ## 准备环境
 
-准备Ubuntu或Debian PC一台
+准备Ubuntu或Debian PC一台，笔者使用Ubuntu 20.04 PC
 
-安装以下依赖：
+安装工具和依赖：
 
 ```
 sudo apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
@@ -20,45 +16,36 @@ libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo ugl
 vim wget xmlto xxd zlib1g-dev
 ```
 
-## 打补丁
+## 准备源码
 
-在OpenWRT github的[release界面](https://github.com/openwrt/openwrt/releases)下载源码并解压
+在[此处](https://github.com/openwrt/openwrt/releases/tag/v23.05.0-rc2)下载23.05.0-rc2版本源码并解压
 
-将本仓库提供的补丁复制到源码根目录
+将本仓库提供的补丁复制到源码根目录，开始打补丁：
 
-在仓库源码根目录打开终端，执行patch -p1 < openwrt-22.03.4-add-tn3399v3-support.patch
+```
+# 提供TN3399_V3基础支持
+patch -p1 < openwrt-23.05.0-rc2-add-tn3399_v3-baisc.patch
+# 为TN3399_V3提供ALC5640支持，可选
+patch -p1 < openwrt-23.05.0-rc2-add-tn3399_v3-speaker.patch
+```
 
 ## 编译
 
+将`openwrt-23.05.0-rc2-tn3399_v3.config`复制到源码根目录，并重命名为.config。该config使能了AP6255驱动、AP6255固件、ALC5640驱动的选项，如果不使用该config，记得自行使能相关选项
+
 ```
-# 更新周边软件源
+# 添加一些常用的软件包源，可选
+# https://github.com/kenzok8/openwrt-packages
+sed -i '$a src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
+sed -i '$a src-git small https://github.com/kenzok8/small' feeds.conf.default
+# 更新软件源
 ./scripts/feeds update -a
-# 安装周边软件源
+# 安装软件源
 ./scripts/feeds install -a
-# 进入编译配置界面进行配置
+# 进入编译配置界面
 make menuconfig
 # 根据配置提前下载需要的软件源码，如果跳过这步直接进行下一步，会变成一边下载一边编译
 make download V=s -j32
 # 编译
 make V=s -j32
 ```
-
-# 构建注意事项
-
-- 配置确保目标镜像的kernel image分区和rootfs分区有足够的空间来装载二进制文件
-
-- 启用WLAN需要打开以下配置选项：
-
-```
-# 驱动支持
-Kernel modules
-    kmod-brcmfmac
-        Enable SDIO bus interface support
-# 固件支持
-Firmware
-    brcmfmac-firmware-43455-sdio-tn3399v3
-```
-
-仓库中有我的配置，复制到源码根目录重命名为`.config`即可使用，不一定适用所有人
-
-- 可根据此[仓库](https://github.com/kenzok8/openwrt-packages)添加一些额外的常用软件包再编译
