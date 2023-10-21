@@ -194,15 +194,15 @@ index 0000000..1a3e0b9
 +	cset "name='Speaker R Playback Switch' on"
 +]
 diff --git a/target/linux/rockchip/image/armv8.mk b/target/linux/rockchip/image/armv8.mk
-index 51c789f..96b25f9 100644
+index 7081746..31d39f7 100644
 --- a/target/linux/rockchip/image/armv8.mk
 +++ b/target/linux/rockchip/image/armv8.mk
 @@ -56,7 +56,8 @@ define Device/tiannuo_tn3399-v3
    DEVICE_MODEL := TN3399_V3
    SOC := rk3399
    IMAGE/sysupgrade.img.gz := boot-common | boot-script | pine64-img | gzip | append-metadata
--  DEVICE_PACKAGES := kmod-brcmfmac brcmfmac-firmware-tn3399-v3
-+  DEVICE_PACKAGES := kmod-brcmfmac brcmfmac-firmware-tn3399-v3 \
+-  DEVICE_PACKAGES := kmod-brcmfmac brcmfmac-firmware-tn3399-v3 kmod-bluetooth kmod-usb-dwc3
++  DEVICE_PACKAGES := kmod-brcmfmac brcmfmac-firmware-tn3399-v3 kmod-bluetooth kmod-usb-dwc3 \
 +  kmod-sound-core kmod-sound-soc-simple-card kmod-sound-soc-simple-amplifier kmod-sound-soc-rockchip kmod-sound-soc-rt5640
  endef
  TARGET_DEVICES += tiannuo_tn3399-v3

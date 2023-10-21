@@ -1,0 +1,90 @@
+diff --git a/package/kernel/linux/modules/video.mk b/package/kernel/linux/modules/video.mk
+index f1e61f3..0afb425 100644
+--- a/package/kernel/linux/modules/video.mk
++++ b/package/kernel/linux/modules/video.mk
+@@ -386,6 +386,58 @@ endef
+ 
+ $(eval $(call KernelPackage,drm-imx-ldb))
+ 
++
++define KernelPackage/drm-rockchip
++  SUBMENU:=$(VIDEO_MENU)
++  TITLE:=RockChip DRM support
++  DEPENDS:=@TARGET_rockchip +kmod-drm-kms-helper +kmod-sound-soc-core
++  KCONFIG:=CONFIG_DRM_ROCKCHIP \
++  CONFIG_DRM_FBDEV_EMULATION=y \
++  CONFIG_DRM_FBDEV_OVERALLOC=100 \
++  CONFIG_ROCKCHIP_DW_HDMI=y \
++  CONFIG_DRM_DW_HDMI_AHB_AUDIO \
++  CONFIG_DRM_DW_HDMI_I2S_AUDIO \
++  CONFIG_DRM_DW_HDMI_CEC \
++  CONFIG_ROCKCHIP_DW_MIPI_DSI=y \
++  CONFIG_DRM_PANEL=y \
++  CONFIG_DRM_PANEL_TOSHIBA_TC358775
++  FILES:= \
++  $(LINUX_DIR)/drivers/gpu/drm/rockchip/rockchipdrm.ko \
++	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi.ko \
++	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi-ahb-audio.ko \
++	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi-i2s-audio.ko \
++	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi-cec.ko \
++	$(LINUX_DIR)/drivers/media/cec/core/cec.ko \
++  $(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.ko \
++  $(LINUX_DIR)/drivers/gpu/drm/panel/panel-toshiba-tc358775.ko
++  AUTOLOAD:=$(call AutoLoad,08,rockchipdrm dw-hdmi dw-hdmi-ahb-audio dw-hdmi-i2s-audio dw-hdmi-cec cec dw-mipi-dsi panel-toshiba-tc358775)
++endef
++
++define KernelPackage/drm-rockchip/description
++  Direct Rendering Manager (DRM) support for RockChip
++endef
++
++$(eval $(call KernelPackage,drm-rockchip))
++
++
++define KernelPackage/drm-panfrost
++  SUBMENU:=$(VIDEO_MENU)
++  TITLE:=ARM Mali Midgard/Bifrost GPUs DRM support
++  DEPENDS:=+kmod-drm-kms-helper
++  KCONFIG:=CONFIG_DRM_PANFROST
++  FILES:= \
++  $(LINUX_DIR)/drivers/gpu/drm/panfrost/panfrost.ko \
++  $(LINUX_DIR)/drivers/gpu/drm/scheduler/gpu-sched.ko
++  AUTOLOAD:=$(call AutoLoad,08,panfrost gpu-sched)
++endef
++
++define KernelPackage/drm-panfrost/description
++  Direct Rendering Manager (DRM) support for ARM Mali Midgard/Bifrost GPUs
++endef
++
++$(eval $(call KernelPackage,drm-panfrost))
++
++
+ define KernelPackage/drm-radeon
+   SUBMENU:=$(VIDEO_MENU)
+   TITLE:=Radeon DRM support
+diff --git a/target/linux/rockchip/armv8/base-files/etc/inittab b/target/linux/rockchip/armv8/base-files/etc/inittab
+new file mode 100644
+index 0000000..b944a93
+--- /dev/null
++++ b/target/linux/rockchip/armv8/base-files/etc/inittab
+@@ -0,0 +1,4 @@
++::sysinit:/etc/init.d/rcS S boot
++::shutdown:/etc/init.d/rcS K shutdown
++::askconsole:/usr/libexec/login.sh
++tty1::askfirst:/usr/libexec/login.sh
+diff --git a/target/linux/rockchip/image/armv8.mk b/target/linux/rockchip/image/armv8.mk
+index 31d39f7..0256803 100644
+--- a/target/linux/rockchip/image/armv8.mk
++++ b/target/linux/rockchip/image/armv8.mk
+@@ -55,9 +55,11 @@ define Device/tiannuo_tn3399-v3
+   DEVICE_VENDOR := TIANNUO
+   DEVICE_MODEL := TN3399_V3
+   SOC := rk3399
++  DEVICE_DTS := rockchip/rk3399-tn3399-v3-with-1024x600-single-8bit-lvds-panel
+   IMAGE/sysupgrade.img.gz := boot-common | boot-script | pine64-img | gzip | append-metadata
+   DEVICE_PACKAGES := kmod-brcmfmac brcmfmac-firmware-tn3399-v3 kmod-bluetooth kmod-usb-dwc3 \
+-  kmod-sound-core kmod-sound-soc-simple-card kmod-sound-soc-simple-amplifier kmod-sound-soc-rockchip kmod-sound-soc-rt5640
++  kmod-sound-core kmod-sound-soc-simple-card kmod-sound-soc-simple-amplifier kmod-sound-soc-rockchip kmod-sound-soc-rt5640 \
++  kmod-drm-rockchip kmod-drm-panfrost kmod-backlight-pwm
+ endef
+ TARGET_DEVICES += tiannuo_tn3399-v3
+ 
