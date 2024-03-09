@@ -18,17 +18,17 @@ vim wget xmlto xxd zlib1g-dev
 
 ## 准备源码
 
-在[此处](https://github.com/openwrt/openwrt/releases/tag/v23.05.0)下载23.05.0版本源码并解压
+在[此处](https://github.com/openwrt/openwrt/releases/tag/v23.05.2)下载23.05.2版本源码并解压
 
 将本仓库提供的patch复制到源码根目录，打补丁：
 
 ```
 # 为TN3399_V3提供基础支持
-patch -p1 < openwrt-23.05.0-add-tn3399-v3-baisc.patch
+patch -p1 < openwrt-23.05.2-add-tn3399-v3-basic.patch
 # 为TN3399_V3提供ALC5640扬声器支持，可选
-patch -p1 < openwrt-23.05.0-add-tn3399-v3-speaker.patch
+patch -p1 < openwrt-23.05.2-add-tn3399-v3-speaker.patch
 # 为TN3399_V3提供HDMI和1024x600单8 LVDS屏幕支持支持，可选
-patch -p1 < openwrt-23.05.0-add-tn3399-v3-display.patch
+patch -p1 < openwrt-23.05.2-add-tn3399-v3-display.patch
 ```
 添加一些常用的软件包源，可选：
 
@@ -38,7 +38,7 @@ sed -i '$a src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf
 sed -i '$a src-git small https://github.com/kenzok8/small' feeds.conf.default
 ```
 
-最后将配置文件`openwrt-23.05.0-tn3399-v3.config`复制到源码根目录
+最后将配置文件`openwrt-23.05.2-tn3399-v3-config`复制到源码根目录
 
 ## 编译
 
@@ -50,7 +50,7 @@ sed -i '$a src-git small https://github.com/kenzok8/small' feeds.conf.default
 # 进入编译配置界面
 make menuconfig
 ```
-进入配置界面后，在下面通过`<Load>`加载配置文件`openwrt-23.05.0-tn3399-v3.config`，然后通过`<Save>`保存到`.config`
+进入配置界面后，在下面通过`<Load>`加载配置文件`openwrt-23.05.2-tn3399-v3-config`，然后通过`<Save>`保存到`.config`
 
 ```
 # 根据配置提前下载需要的软件源码，如果跳过这步直接进行下一步，会变成一边下载一边编译

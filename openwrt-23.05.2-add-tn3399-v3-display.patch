@@ -1,8 +1,8 @@
 diff --git a/package/kernel/linux/modules/video.mk b/package/kernel/linux/modules/video.mk
-index f1e61f3..0afb425 100644
+index f1e61f3..0b00a1e 100644
 --- a/package/kernel/linux/modules/video.mk
 +++ b/package/kernel/linux/modules/video.mk
-@@ -386,6 +386,58 @@ endef
+@@ -386,6 +386,60 @@ endef
  
  $(eval $(call KernelPackage,drm-imx-ldb))
  
@@ -18,19 +18,21 @@ index f1e61f3..0afb425 100644
 +  CONFIG_DRM_DW_HDMI_AHB_AUDIO \
 +  CONFIG_DRM_DW_HDMI_I2S_AUDIO \
 +  CONFIG_DRM_DW_HDMI_CEC \
++  CONFIG_SND_SOC_HDMI_CODEC \
 +  CONFIG_ROCKCHIP_DW_MIPI_DSI=y \
 +  CONFIG_DRM_PANEL=y \
 +  CONFIG_DRM_PANEL_TOSHIBA_TC358775
 +  FILES:= \
 +  $(LINUX_DIR)/drivers/gpu/drm/rockchip/rockchipdrm.ko \
-+	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi.ko \
-+	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi-ahb-audio.ko \
-+	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi-i2s-audio.ko \
-+	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi-cec.ko \
-+	$(LINUX_DIR)/drivers/media/cec/core/cec.ko \
++  $(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi.ko \
++  $(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi-ahb-audio.ko \
++  $(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi-i2s-audio.ko \
++  $(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi-cec.ko \
++  $(LINUX_DIR)/drivers/media/cec/core/cec.ko \
++  $(LINUX_DIR)/sound/soc/codecs/snd-soc-hdmi-codec.ko \
 +  $(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.ko \
 +  $(LINUX_DIR)/drivers/gpu/drm/panel/panel-toshiba-tc358775.ko
-+  AUTOLOAD:=$(call AutoLoad,08,rockchipdrm dw-hdmi dw-hdmi-ahb-audio dw-hdmi-i2s-audio dw-hdmi-cec cec dw-mipi-dsi panel-toshiba-tc358775)
++  AUTOLOAD:=$(call AutoLoad,08,rockchipdrm dw-hdmi dw-hdmi-ahb-audio dw-hdmi-i2s-audio dw-hdmi-cec cec snd-soc-hdmi-codec dw-mipi-dsi panel-toshiba-tc358775)
 +endef
 +
 +define KernelPackage/drm-rockchip/description
